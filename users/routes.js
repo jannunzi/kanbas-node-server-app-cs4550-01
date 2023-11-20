@@ -1,5 +1,7 @@
 import * as dao from "./dao.js";
 
+let currentUser = null;
+
 function UserRoutes(app) {
   const findAllUsers = async (req, res) => {
     console.log("findAllUsers");
@@ -42,11 +44,54 @@ function UserRoutes(app) {
     const { id } = req.params;
     const user = req.body;
     const status = await dao.updateUser(id, user);
-    res.sendStatus(status);
+    currentUser = await dao.findUserById(id);
+    res.send(status);
   };
+
+  const signIn = async (req, res) => {
+    const { username, password } = req.body;
+    const user = await dao.findUserByCredentials(username, password);
+    if (user) {
+      currentUser = user;
+      res.json(user);
+      return;
+    } else {
+      res.sendStatus(403);
+    }
+  };
+  const signOut = async (req, res) => {
+    currentUser = null;
+    res.sendStatus(200);
+  };
+  const signUp = async (req, res) => {
+    const { username, password } = req.body;
+    const userExists = await dao.findUserByUsername(username);
+    if (userExists) {
+      res.sendStatus(403);
+      return;
+    }
+    const user = await dao.createUser({ username, password });
+    currentUser = user;
+    res.json(user);
+  };
+  const account = async (req, res) => {
+    if (currentUser) {
+      res.json(currentUser);
+    } else {
+      res.sendStatus(403);
+    }
+  };
+
+  app.post("/api/users/signin", signIn);
+  app.post("/api/users/account", account);
+  app.post("/api/users/signout", signOut);
+  app.post("/api/users/signup", signUp);
+
   app.get("/api/users", findAllUsers);
   app.get("/api/users/:id", findUserById);
   app.get("/api/users/username/:username", findUserByUsername);
+
+  // DONT DO THIS:
   app.get("/api/users/:username/:password", findUserByCredentials);
   app.get("/api/users/:username/:password/:firstName/:lastName", createUser);
   // app.post("/api/users", createUser);
