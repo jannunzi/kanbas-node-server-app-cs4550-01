@@ -7,6 +7,7 @@ import CourseRoutes from "./courses/routes.js";
 import ModuleRoutes from "./modules/routes.js";
 import UserRoutes from "./users/routes.js";
 import LikesRoutes from "./likes/routes.js";
+import FollowsRoutes from "./follows/routes.js";
 import session from "express-session";
 
 import cors from "cors";
@@ -31,6 +32,7 @@ app.use(session(sessionOptions));
 
 app.use(express.json());
 
+FollowsRoutes(app);
 LikesRoutes(app);
 UserRoutes(app);
 Lab5(app);
