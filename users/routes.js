@@ -80,11 +80,11 @@ function UserRoutes(app) {
   };
   const account = async (req, res) => {
     const currentUser = req.session["currentUser"];
-    if (currentUser) {
-      res.json(currentUser);
-    } else {
-      res.sendStatus(403);
-    }
+    // if (currentUser) {
+    res.json(currentUser);
+    // } else {
+    //   res.sendStatus(403);
+    // }
   };
 
   app.post("/api/users/signin", signIn);
